@@ -3,8 +3,21 @@ const { server } = require('./utils/socket');
 
 dotenv.config({ path: './.env' });
 const PORT = process.env.PORT || 8000;
+const db = require('./utils/database');
 
 /* eslint-disable */
+db.authenticate()
+  .then(() => {
+    console.log('🎉 Database connected successfully');
+  })
+  .catch(error => console.error('🔥Error:' + error.message));
+
+db.sync()
+  .then(() => console.log('Database is synchronized with the models'))
+  .catch(err => {
+    console.error(err);
+  });
+
 // uncaught exceptions
 process.on('uncaughtException', err => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
