@@ -1,36 +1,13 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const hpp = require('hpp');
-const compression = require('compression');
+const dotenv = require('dotenv');
+const { server } = require('./utils/socket');
 
-const app = express();
+dotenv.config({ path: './.env' });
+const PORT = process.env.PORT || 8000;
 
-app.use(cors());
-app.options('*', cors());
-
-//set http security headers
-app.use(helmet());
-
-app.use(express.json());
-
-app.use(hpp());
-
-app.use(compression());
-
-const PORT = 4000;
-
-app.listen(PORT, () => {
+/* eslint-disable */
+server.listen(PORT, () => {
   console.log(`API listening on PORT ${PORT} `);
 });
-
-app.get('/', (req, res) => {
-  res.send('Hey this is my API running 🥳');
-});
-
-app.get('/about', (req, res) => {
-  res.send('This is my about route..... ');
-});
+/* eslint-enable */
 
 // Export the Express API
-module.exports = app;
