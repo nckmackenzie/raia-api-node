@@ -10,6 +10,8 @@
     "ecmaVersion": "latest"
   },
   "rules": {
-    "comma-dangle": "off"
+    "comma-dangle": "off",
+    "linebreak-style": ["error", "windows"],
+    "arrow-parens": "off"
   }
 }
