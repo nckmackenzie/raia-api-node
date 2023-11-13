@@ -22,14 +22,41 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   if (!token) return next(new AppError('Login to access resource', 401));
 
+  // jwt.verify(token, process.env.JWT_TOKEN, async (err, decoded) => {
+  //   if (err) {
+  //     return res
+  //       .status(401)
+  //       .json({ status: 'unauthenticated', error: err.message });
+  //   }
+
+  //   const user = await User.findOne({
+  //     attributes: ['id', 'full_name', 'email', 'username', 'active'],
+  //     where: { user_uid: decoded.sub },
+  //   });
+
+  //   if (!user.active) return next(new AppError('User deactivated', 401));
+
+  //   // prettier-ignore
+  //   if (user.is_deleted) return next(new AppError('This account was closed', 401));
+
+  //   req.user = user;
+
+  //   return next();
+  // });
+
   const { sub } = jwt.verify(token, process.env.JWT_SECRET);
 
-  const user = await User.findOne({ where: { user_uid: sub } });
+  const user = await User.findOne({
+    // attributes: ['id', 'full_name', 'email', 'username', 'contact', 'active'],
+    where: { user_uid: sub },
+  });
 
   if (!user.active) return next(new AppError('User deactivated', 401));
 
   // prettier-ignore
   if (user.is_deleted) return next(new AppError('This account was closed', 401));
+
+  req.user = user.id;
 
   return next();
 });

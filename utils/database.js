@@ -13,7 +13,10 @@ const db = new Sequelize(
     host: process.env.DB_HOST,
     dialectModule: pg,
     dialect: 'postgres',
-    dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
+    define: {
+      underscored: true,
+    },
+    // dialectOptions: { ssl: { require: FontFaceSetLoadEvent, rejectUnauthorized: false } },
     logging: false,
   }
 );

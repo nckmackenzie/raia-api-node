@@ -4,8 +4,8 @@ const helmet = require('helmet');
 const hpp = require('hpp');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-const AppError = require('./utils/AppError');
-const globalErrorHandler = require('./controllers/errors/errorHandler');
+// const AppError = require('./utils/AppError');
+// const globalErrorHandler = require('./controllers/errors/errorHandler');
 const { protect } = require('./controllers/auth');
 
 const app = express();
@@ -33,15 +33,15 @@ app.use(compression());
 
 app.use(protect);
 
-app.get('/', (req, res) => {
-  res.send('Hey this is my API running 🥳');
-});
+// app.get('/', (req, res) => {
+//   res.json({ msg: 'Hey this is my API running 🥳', user: req.user });
+// });
 
-app.all('*', (req, res, next) => {
-  next(new AppError(`No routes found for ${req.originalUrl}`, 404));
-});
+// app.all('*', (req, res, next) => {
+//   next(new AppError(`No routes found for ${req.originalUrl}`, 404));
+// });
 
-// global error handling middleware
-app.use(globalErrorHandler);
+// // global error handling middleware
+// app.use(globalErrorHandler);
 
 module.exports = app;
