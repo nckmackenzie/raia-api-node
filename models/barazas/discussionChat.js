@@ -27,6 +27,17 @@ const Discussionchat = db.define(
         key: 'id',
       },
     },
+    message: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    message_url: {
+      type: DataTypes.STRING,
+    },
+    is_deleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

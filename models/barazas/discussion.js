@@ -40,6 +40,9 @@ const Discussion = db.define(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
     },
+    discussion_resources: {
+      type: DataTypes.STRING,
+    },
     discussion_type: {
       type: DataTypes.ENUM,
       values: ['public', 'private'],
@@ -49,7 +52,11 @@ const Discussion = db.define(
       defaultValue: false,
     },
   },
-  { timestamps: true, tableName: 'discussions' }
+  {
+    timestamps: true,
+    tableName: 'discussions',
+    defaultScope: { attributes: { exclude: ['user_id', 'is_deleted'] } },
+  }
 );
 
 module.exports = Discussion;
