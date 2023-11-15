@@ -4,7 +4,7 @@ const Ticket = require('../../models/tickets/ticket');
 const Notification = require('../../models/notification');
 const AppError = require('../../utils/AppError');
 const db = require('../../utils/database');
-const { getTickets } = require('../../models/tickets/queries');
+const { getTickets, getTicket } = require('../../models/tickets/queries');
 
 // prettier ignore
 exports.createTicket = io =>
@@ -66,4 +66,24 @@ exports.getTickets = catchAsync(async (req, res) => {
   const tickets = await db.query(getTickets(), { type: QueryTypes.SELECT });
 
   res.json({ status: 'success', data: tickets });
+});
+
+exports.getTicket = catchAsync(async (req, res, next) => {
+  const { ticketId } = req.params;
+  if (!ticketId) return next(new AppError('Ticket not provided', 400));
+  const ticket = await db.query(getTicket(), {
+    replacements: [ticketId],
+    type: QueryTypes.SELECT,
+  });
+
+  if (!ticket) return next(new AppError('Ticket not found', 404));
+  //   const test = req.user === ticket.assigned_leader_id;
+  //   prettier-ignore
+  if (req.user !== ticket[0].user_id && req.user !== ticket[0].assigned_leader_id) {
+    return next(
+      new AppError("You don't have permission to view this page", 403)
+    );
+  }
+
+  return res.json({ status: 'success', data: ticket[0] });
 });

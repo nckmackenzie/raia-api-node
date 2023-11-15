@@ -10,6 +10,10 @@ const db = require('./utils/database');
 const app = require('./app');
 
 const ticketRoutes = require('./routes/ticket');
+const discussionRoutes = require('./routes/discussion');
+const defineAssociations = require('./associations');
+
+defineAssociations();
 /* eslint-disable */
 db.authenticate()
   .then(() => {
@@ -34,6 +38,7 @@ const server = createServer(app);
 const io = new Server(server, { cors: '*' });
 
 app.use('/tickets', ticketRoutes(io));
+app.use('/discussions', discussionRoutes(io));
 // app.use('/tickets', ticketRoutes);
 
 server.listen(PORT, () => {
