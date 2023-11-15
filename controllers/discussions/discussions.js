@@ -79,24 +79,22 @@ exports.createChat = io =>
       return next(new AppError('Message not provided', 400));
     }
 
-    // const createdChat = await Discussionchat.create({
-    //   discussion_id: discussion.id,
-    //   user_id: req.user, // Assuming req.user contains the user ID
-    //   message: req.body.message,
-    // });
+    const createdChat = await Discussionchat.create({
+      discussion_id: discussion.id,
+      user_id: req.user, // Assuming req.user contains the user ID
+      message: req.body.message,
+    });
 
-    // if (!createdChat) return next(new AppError('Unable to create chat', 500));
+    if (!createdChat) return next(new AppError('Unable to create chat', 500));
 
-    // const chat = await db.query(getChat(), {
-    //   replacements: [createdChat.id],
-    //   type: QueryTypes.SELECT,
-    // });
+    const chat = await db.query(getChat(), {
+      replacements: [createdChat.id],
+      type: QueryTypes.SELECT,
+    });
 
-    // io.emit(`chat:${discussion.id}`, chat[0]);
-    io.emit(`chat:${discussion.id}`, 'some message');
+    io.emit(`chat:${discussion.id}`, chat[0]);
 
-    // return res.json({ status: 'success', data: chat[0] });
-    return res.json({ status: 'success', data: discussion.id });
+    return res.json({ status: 'success', data: chat[0] });
   });
 
 exports.getChats = catchAsync(async (req, res, next) => {

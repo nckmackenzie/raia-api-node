@@ -37,6 +37,54 @@ process.on('uncaughtException', err => {
 const server = createServer(app);
 const io = new Server(server, { cors: '*' });
 
+let onlineUsers = [];
+
+io.on('connection', socket => {
+  // console.log('A user connected');
+
+  socket.on('online:baraza:users', userData => {
+    const existingUser = onlineUsers.find(user => user.id === userData.id);
+
+    if (!existingUser) {
+      onlineUsers.push(userData);
+    }
+
+    io.emit('online:users', onlineUsers);
+
+    // console.log('Online Users:', onlineUsers);
+  });
+
+  // Handle disconnect event if needed
+  socket.on('disconnect', () => {
+    const disconnectedUserId = socket.id; // You might want to use a user ID instead
+
+    onlineUsers = onlineUsers.filter(user => user.id !== disconnectedUserId);
+
+    io.emit('online:users', onlineUsers);
+
+    // console.log('A user disconnected');
+    // console.log('Online Users:', onlineUsers);
+  });
+});
+
+// let onlineUsers = [];
+// io.on('connection', socket => {
+//   // console.log('A user connected');
+
+//   socket.on('online:baraza:users', data => {
+//     // console.log(data);
+//     if (onlineUsers.some(user => user.id === data.id)) return;
+//     onlineUsers.push(data);
+
+//     io.emit('online:users', onlineUsers);
+//   });
+
+//   // Handle disconnect event if needed
+//   socket.on('disconnect', () => {
+//     console.log('A user disconnected');
+//   });
+// });
+
 app.use('/tickets', ticketRoutes(io));
 app.use('/discussions', discussionRoutes(io));
 // app.use('/tickets', ticketRoutes);
