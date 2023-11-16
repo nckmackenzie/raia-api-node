@@ -3,6 +3,8 @@ const catchAsync = require('../../utils/catchAsync');
 const Discussion = require('../../models/barazas/discussion');
 const Discussionreply = require('../../models/barazas/discussionReply');
 const Discussionchat = require('../../models/barazas/discussionChat');
+const Discussionupvote = require('../../models/barazas/discussionUpvote');
+const Point = require('../../models/point');
 const AppError = require('../../utils/AppError');
 const User = require('../../models/user');
 const { findResourceById } = require('../../utils/finder');
@@ -113,4 +115,40 @@ exports.getChats = catchAsync(async (req, res, next) => {
   });
 
   return res.json({ status: 'success', data: chats });
+});
+
+exports.barazaUpvote = catchAsync(async (req, res, next) => {
+  const { discussionId } = req.params;
+
+  const discussion = await Discussion.findOne({ where: { id: discussionId } });
+
+  if (!discussion || !discussionId) {
+    return next(new AppError('Discussion not found', 404));
+  }
+
+  try {
+    await db.transaction(async t => {
+      await Discussionupvote.create(
+        {
+          discussion_id: discussion.id,
+          user_id: req.user,
+        },
+        { transaction: t }
+      );
+
+      await Point.create(
+        {
+          user_id: discussion.user_id,
+          points: 20,
+          point_type: 'baraza upvote',
+          description: 'points earned from baraza upvote',
+        },
+        { transaction: t }
+      );
+    });
+
+    return res.status(201).json({ status: 'created' });
+  } catch (error) {
+    throw new AppError('Could not create upvote', 500);
+  }
 });

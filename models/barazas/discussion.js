@@ -55,7 +55,7 @@ const Discussion = db.define(
   {
     timestamps: true,
     tableName: 'discussions',
-    defaultScope: { attributes: { exclude: ['user_id', 'is_deleted'] } },
+    defaultScope: { attributes: { exclude: ['is_deleted'] } },
   }
 );
 

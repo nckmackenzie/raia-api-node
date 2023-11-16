@@ -26,7 +26,7 @@ const Point = db.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    desription: {
+    description: {
       type: DataTypes.STRING,
       allowNull: true,
     },

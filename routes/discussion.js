@@ -4,6 +4,7 @@ const {
   getBarazaDetails,
   createChat,
   getChats,
+  barazaUpvote,
 } = require('../controllers/discussions/discussions');
 
 const discussionsRoutes = io => {
@@ -15,6 +16,7 @@ const discussionsRoutes = io => {
   router.get('/:discussionId', getBarazaDetails);
   router.post('/:discussionId/reply', barazaReply);
   router.get('/:discussionId/chats', getChats);
+  router.post('/:discussionId/upvote', barazaUpvote);
 
   return router;
 };
