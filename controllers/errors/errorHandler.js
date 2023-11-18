@@ -3,8 +3,8 @@ const AppError = require('../../utils/AppError');
 const sendDevErr = (err, res) => {
   return res.status(err.statusCode).json({
     status: err.status,
-    message: err.message,
-    error: err,
+    error: err.message,
+    errorDetails: err,
     stack: err.stack,
   });
 };
@@ -12,7 +12,7 @@ const sendDevErr = (err, res) => {
 const sendProdErr = (err, res) => {
   return res.status(err.statusCode).json({
     status: err.status,
-    message: err.message,
+    error: err.message,
   });
 };
 
