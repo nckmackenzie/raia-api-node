@@ -11,7 +11,7 @@
   },
   "rules": {
     "comma-dangle": "off",
-    "linebreak-style": ["error", "windows"],
+    // "linebreak-style": ["error", "windows"],
     "arrow-parens": "off",
     "object-curly-newline": "off"
   }

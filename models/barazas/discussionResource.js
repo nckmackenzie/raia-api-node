@@ -31,6 +31,10 @@ const Discussionresource = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     resource_type: {
       type: DataTypes.ENUM,
       values: ['image', 'document', 'audio', 'video'],

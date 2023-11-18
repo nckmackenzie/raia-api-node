@@ -47,10 +47,13 @@ exports.protect = catchAsync(async (req, res, next) => {
   const { sub } = jwt.verify(token, process.env.JWT_SECRET);
 
   const user = await User.findOne({
-    // attributes: ['id', 'full_name', 'email', 'username', 'contact', 'active'],
+    attributes: ['id', 'full_name', 'email', 'username', 'contact', 'active'],
     where: { user_uid: sub },
   });
 
+  if (!user) {
+    return next(new AppError('Not user found for provided credentials', 401));
+  }
   if (!user.active) return next(new AppError('User deactivated', 401));
 
   // prettier-ignore

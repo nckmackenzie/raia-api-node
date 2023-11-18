@@ -4,12 +4,15 @@ const Discussion = require('../../models/barazas/discussion');
 const Discussionreply = require('../../models/barazas/discussionReply');
 const Discussionchat = require('../../models/barazas/discussionChat');
 const Discussionupvote = require('../../models/barazas/discussionUpvote');
+const Discussionresource = require('../../models/barazas/discussionResource');
 const Point = require('../../models/point');
 const AppError = require('../../utils/AppError');
 const User = require('../../models/user');
 const { findResourceById } = require('../../utils/finder');
 const db = require('../../utils/database');
 const { getChat } = require('../../models/barazas/queries');
+
+const ALLOWED_FILE_TYPES = ['pdf', 'jpg', 'jpeg', 'png', 'svg', 'webp'];
 
 exports.getBarazaDetails = catchAsync(async (req, res, next) => {
   const { discussionId } = req.params;
@@ -41,7 +44,20 @@ exports.getBarazaDetails = catchAsync(async (req, res, next) => {
     return next(new AppError('Entered discussion id not found', 404));
   }
 
-  return res.json({ status: 'success', data: discussion });
+  const totalUpvotes = await Discussionupvote.findAndCountAll({
+    where: { discussion_id: discussion.id },
+  });
+
+  const hasUpvoted = await Discussionupvote.findOne({
+    where: { discussion_id: discussion.id, user_id: req.user },
+  });
+
+  return res.json({
+    status: 'success',
+    data: discussion,
+    upvotes: totalUpvotes.count,
+    hasUpvoted: !!hasUpvoted,
+  });
 });
 
 exports.barazaReply = catchAsync(async (req, res, next) => {
@@ -126,6 +142,14 @@ exports.barazaUpvote = catchAsync(async (req, res, next) => {
     return next(new AppError('Discussion not found', 404));
   }
 
+  const checkBazarazaVote = await Discussionupvote.findOne({
+    where: { discussion_id: discussion.id, user_id: req.user },
+  });
+
+  if (checkBazarazaVote) {
+    return next(new AppError('You have already upvoted', 403));
+  }
+
   try {
     await db.transaction(async t => {
       await Discussionupvote.create(
@@ -151,4 +175,53 @@ exports.barazaUpvote = catchAsync(async (req, res, next) => {
   } catch (error) {
     throw new AppError('Could not create upvote', 500);
   }
+});
+
+exports.getResources = catchAsync(async (req, res, next) => {
+  const { discussionId } = req.params;
+
+  const discussion = await Discussion.findOne({ where: { id: discussionId } });
+
+  if (!discussion || !discussionId) {
+    return next(new AppError('Discussion not found', 404));
+  }
+
+  const resources = await Discussionresource.findAll({
+    where: { discussion_id: discussion.id },
+  });
+
+  return res.json({ status: 'success', data: resources });
+});
+
+exports.createResource = catchAsync(async (req, res, next) => {
+  const { discussionId } = req.params;
+
+  const discussion = await Discussion.findOne({ where: { id: discussionId } });
+
+  if (!discussion || !discussionId) {
+    return next(new AppError('Discussion not found', 404));
+  }
+
+  const { resource } = req.body;
+
+  if (resource) {
+    return next(new AppError('Resource url not provided', 400));
+  }
+
+  const fileType = resource.split('.').pop();
+  if (!ALLOWED_FILE_TYPES.includes(fileType)) {
+    return next(new AppError('Uploaded file type not supported.'));
+  }
+
+  const createdResource = await Discussionresource.create({
+    user_id: req.user,
+    discussion_id: discussion.id,
+    resource_url: resource,
+  });
+
+  if (!createdResource) {
+    return next(new AppError('Unable to create resource', 500));
+  }
+
+  return res.status(201).json({ status: 'success' });
 });

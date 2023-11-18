@@ -5,6 +5,8 @@ const {
   createChat,
   getChats,
   barazaUpvote,
+  getResources,
+  createResource,
 } = require('../controllers/discussions/discussions');
 
 const discussionsRoutes = io => {
@@ -17,6 +19,8 @@ const discussionsRoutes = io => {
   router.post('/:discussionId/reply', barazaReply);
   router.get('/:discussionId/chats', getChats);
   router.post('/:discussionId/upvote', barazaUpvote);
+  router.get('/:discussionId/resources', getResources);
+  router.post('/:discussionId/resources', createResource);
 
   return router;
 };
