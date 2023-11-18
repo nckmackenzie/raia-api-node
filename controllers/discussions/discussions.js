@@ -122,6 +122,14 @@ exports.barazaUpvote = catchAsync(async (req, res, next) => {
 
   const discussion = await Discussion.findOne({ where: { id: discussionId } });
 
+  const checkUserSigned = await Discussionreply.findOne({
+    where: { user_id: req.user, discussion_id: discussion.id },
+  });
+
+  if (checkUserSigned) {
+    return next(new AppError('Alread upvo', 422));
+  }
+
   if (!discussion || !discussionId) {
     return next(new AppError('Discussion not found', 404));
   }
