@@ -210,10 +210,14 @@ exports.createResource = catchAsync(async (req, res, next) => {
     return next(new AppError('Discussion not found', 404));
   }
 
-  const { resource } = req.body;
+  const { resource, description } = req.body;
 
-  if (resource) {
+  if (!resource) {
     return next(new AppError('Resource url not provided', 400));
+  }
+
+  if (!resource) {
+    return next(new AppError('Description not provided', 400));
   }
 
   const fileType = resource.split('.').pop();
@@ -225,6 +229,7 @@ exports.createResource = catchAsync(async (req, res, next) => {
     user_id: req.user,
     discussion_id: discussion.id,
     resource_url: resource,
+    description,
   });
 
   if (!createdResource) {
