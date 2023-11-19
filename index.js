@@ -19,7 +19,8 @@ const tre = require('./models/tickets/ticketReply');
 const chat = require('./models/barazas/discussionChat');
 const repl = require('./models/barazas/discussionReply');
 const res = require('./models/barazas/discussionResource');
-const upv = require('./models/barazas/discussionUpvote');
+const Upvote = require('./models/barazas/discussionUpvote');
+const catchAsync = require('./utils/catchAsync');
 
 defineAssociations();
 /* eslint-disable */
@@ -95,6 +96,13 @@ io.on('connection', socket => {
 
 app.use('/tickets', ticketRoutes(io));
 app.use('/discussions', discussionRoutes(io));
+app.get(
+  '/test',
+  catchAsync(async (req, res) => {
+    const respo = await Upvote.findAll();
+    res.json({ status: 'success', data: respo });
+  })
+);
 // app.use('/tickets', ticketRoutes);
 
 server.listen(PORT, () => {
