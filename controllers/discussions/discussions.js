@@ -14,6 +14,23 @@ const { getChat } = require('../../models/barazas/queries');
 
 const ALLOWED_FILE_TYPES = ['pdf', 'jpg', 'jpeg', 'png', 'svg', 'webp'];
 
+exports.createBaraza = catchAsync(async (req, res, next) => {
+  const { content, date, discussion_resources, end_datetime, title, topic } =
+    req.body;
+
+  const discussion = await Discussion.create({
+    title,
+    topic,
+    content,
+    user_id: req.user,
+    date,
+    end_datetime,
+    discussion_resources,
+  });
+
+  res.status(201).json({ status: 'success', data: discussion });
+});
+
 exports.getBarazaDetails = catchAsync(async (req, res, next) => {
   const { discussionId } = req.params;
 
