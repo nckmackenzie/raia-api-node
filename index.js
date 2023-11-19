@@ -12,6 +12,14 @@ const app = require('./app');
 const ticketRoutes = require('./routes/ticket');
 const discussionRoutes = require('./routes/discussion');
 const defineAssociations = require('./associations');
+const msg = require('./models/message');
+const not = require('./models/notification');
+const follow = require('./models/follow');
+const tre = require('./models/tickets/ticketReply');
+const chat = require('./models/barazas/discussionChat');
+const repl = require('./models/barazas/discussionReply');
+const res = require('./models/barazas/discussionResource');
+const upv = require('./models/barazas/discussionUpvote');
 
 defineAssociations();
 /* eslint-disable */
