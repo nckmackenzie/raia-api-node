@@ -9,18 +9,10 @@ const PORT = process.env.PORT || 8000;
 const db = require('./utils/database');
 const app = require('./app');
 
+const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/ticket');
 const discussionRoutes = require('./routes/discussion');
 const defineAssociations = require('./associations');
-// const msg = require('./models/message');
-// const not = require('./models/notification');
-// const follow = require('./models/follow');
-// const tre = require('./models/tickets/ticketReply');
-// const chat = require('./models/barazas/discussionChat');
-// const repl = require('./models/barazas/discussionReply');
-// const res = require('./models/barazas/discussionResource');
-const Upvote = require('./models/barazas/discussionUpvote');
-const catchAsync = require('./utils/catchAsync');
 
 defineAssociations();
 /* eslint-disable */
@@ -76,33 +68,9 @@ io.on('connection', socket => {
   });
 });
 
-// let onlineUsers = [];
-// io.on('connection', socket => {
-//   // console.log('A user connected');
-
-//   socket.on('online:baraza:users', data => {
-//     // console.log(data);
-//     if (onlineUsers.some(user => user.id === data.id)) return;
-//     onlineUsers.push(data);
-
-//     io.emit('online:users', onlineUsers);
-//   });
-
-//   // Handle disconnect event if needed
-//   socket.on('disconnect', () => {
-//     console.log('A user disconnected');
-//   });
-// });
-
+app.use('/auth', authRoutes);
 app.use('/tickets', ticketRoutes(io));
 app.use('/discussions', discussionRoutes(io));
-app.get(
-  '/test',
-  catchAsync(async (req, res) => {
-    const respo = await Upvote.findAll();
-    res.json({ status: 'success', data: respo });
-  })
-);
 // app.use('/tickets', ticketRoutes);
 
 server.listen(PORT, () => {

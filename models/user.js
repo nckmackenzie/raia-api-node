@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const { DataTypes } = require('sequelize');
 const db = require('../utils/database');
 
@@ -90,7 +92,33 @@ const User = db.define(
   {
     tableName: 'users',
     timestamps: true,
+    defaultScope: {
+      attributes: {
+        include: ['id', 'full_name', 'email', 'username', 'profile_image'],
+      },
+    },
   }
 );
+
+// hooks to run before save
+User.beforeCreate(async user => {
+  user.password_digest = await bcrypt.hash(user.password_digest, 12);
+  const bytes = crypto.randomBytes(8 / 2).toString('hex');
+  user.username = `user-${bytes}`;
+});
+
+// instance method to encrypt password before update
+// eslint-disable-next-line func-names
+User.prototype.encryptPasswordBeforeUpdate = async function (pass) {
+  const newPassword = await bcrypt.hash(pass, 12);
+  return newPassword;
+};
+
+// instance method to verify password entered
+// eslint-disable-next-line func-names
+User.prototype.verifyPassword = async function (plainPassword, hashedPassword) {
+  // eslint-disable-next-line no-return-await
+  return await bcrypt.compare(plainPassword, hashedPassword);
+};
 
 module.exports = User;

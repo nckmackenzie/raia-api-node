@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const hpp = require('hpp');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 // const AppError = require('./utils/AppError');
 // const globalErrorHandler = require('./controllers/errors/errorHandler');
 const { protect } = require('./controllers/auth');
@@ -26,6 +27,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(express.json());
+
+app.use(cookieParser());
 
 app.use(hpp());
 
