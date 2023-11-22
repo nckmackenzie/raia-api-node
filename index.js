@@ -36,7 +36,7 @@ process.on('uncaughtException', err => {
 });
 
 const server = createServer(app);
-const io = new Server(server, { cors: '*' });
+const io = new Server(server, { cors: process.env.CLIENT_URL });
 
 let onlineUsers = [];
 

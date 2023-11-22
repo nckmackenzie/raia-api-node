@@ -11,8 +11,12 @@ const { protect } = require('./controllers/auth');
 
 const app = express();
 
-app.use(cors());
-app.options('*', cors());
+const corsOptions = {
+  origin: process.env.CLIENT_URL, // Replace with the actual URL of your React app
+  credentials: true, // Enable credentials (cookies)
+};
+app.use(cors(corsOptions));
+// app.options('http://localhost:5173', cors());
 
 // set http security headers
 app.use(helmet());

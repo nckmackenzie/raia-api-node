@@ -6,7 +6,7 @@ const User = require('../../models/user');
 
 const rolesEnum = ['citizen', 'leader', 'admin'];
 
-const signAndSendJwt = (user, res, status) => {
+const signAndSendJwt = (user, res, status, isInitial = false) => {
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
@@ -23,7 +23,7 @@ const signAndSendJwt = (user, res, status) => {
 
   res.cookie('raia_jwt', token, cookieOptions);
 
-  res.status(status).json({ status: 'success', user, token });
+  res.status(status).json({ status: 'success', user, token, isInitial });
 };
 
 // eslint-disable-next-line consistent-return
@@ -99,13 +99,16 @@ exports.signUp = catchAsync(async (req, res, next) => {
   user.is_deleted = undefined;
   user.role = rolesEnum[numericRole];
 
-  signAndSendJwt(user, res, 201);
+  signAndSendJwt(user, res, 201, true);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
-  if (req.url.startsWith('/auth')) {
+  if (req.url === '/auth/sign-up' || req.url === '/auth/sign-in') {
     return next(); // Skip verification
   }
+  // if (req.url.startsWith('/auth')) {
+  //   return next(); // Skip verification
+  // }
 
   let token;
 
@@ -140,4 +143,109 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = user.id;
 
   return next();
+});
+
+// TODO FIX ME: UNCOMMENT LINES TO VERIFY
+exports.changepasswordDummy = catchAsync(async (req, res, next) => {
+  // get user password from db
+  // const user = await User.findByPk(req.user, {
+  //   attributes: ['id', 'name', 'password_digest'],
+  // });
+  const user = await User.findByPk(req.body.userId, {
+    attributes: ['id', 'full_name', 'password_digest'],
+  });
+
+  const { newPassword, confirmPassword } = req.body;
+
+  if (!newPassword || newPassword.trim().length === 0) {
+    return next(new AppError('Old password required', 400));
+  }
+  if (!confirmPassword || confirmPassword.trim().length === 0) {
+    return next(new AppError('Confirm password', 400));
+  }
+
+  const hashedPassword = await user.encryptPasswordBeforeUpdate(newPassword);
+
+  await User.update(
+    { password_digest: hashedPassword },
+    { where: { id: req.body.userId } }
+  );
+
+  // remove password from output
+  user.password_digest = undefined;
+
+  // sign and send json web token
+  // signAndSendJwt(user, res, 200);
+  return res.status(200).json({ status: 'success' });
+});
+
+exports.changepassword = catchAsync(async (req, res, next) => {
+  // get user password from db
+  // const user = await User.findByPk(req.user, {
+  //   attributes: ['id', 'name', 'password_digest'],
+  // });
+  const user = await User.findByPk(req.user, {
+    attributes: ['id', 'name', 'password_digest'],
+  });
+
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+
+  if (!newPassword || newPassword.trim().length === 0) {
+    return next(new AppError('Old password required', 400));
+  }
+  if (!confirmPassword || confirmPassword.trim().length === 0) {
+    return next(new AppError('Confirm password', 400));
+  }
+
+  // verify entered old password is correct
+  // prettier-ignore
+  if (!user || !(await user.verifyPassword(oldPassword, user.password_digest))) {
+    return next(new AppError('Old password is incorrect', 401));
+  }
+
+  const hashedPassword = await user.encryptPasswordBeforeUpdate(newPassword);
+
+  // update user password
+  // await User.update(
+  //   { password: hashedPassword, password_changed_on: Date.now() - 1000 },
+  //   { where: { id: req.user.id } }
+  // );
+  await User.update(
+    { password_digest: hashedPassword },
+    { where: { id: req.user.id } }
+  );
+
+  // remove password from output
+  user.password_digest = undefined;
+
+  // sign and send json web token
+  // signAndSendJwt(user, res, 200);
+  return res.status(200).json({ status: 'success' });
+});
+
+exports.getUser = catchAsync(async (req, res, next) => {
+  if (!req.user) return next(new AppError('Log in again', 401));
+
+  const user = await User.findByPk(req.user);
+
+  user.password_digest = undefined;
+  user.user_uid = undefined;
+  user.created_at = undefined;
+  user.interests = undefined;
+  user.is_deleted = undefined;
+  user.role = rolesEnum[user.role];
+
+  return res.status(200).json({ status: 'success', user });
+});
+
+exports.logout = catchAsync(async (req, res, next) => {
+  if (!req.user) return next(new AppError('You are not logged in', 400));
+  const cookieOptions = {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true, // ensures browser doesnt change cookie,
+  };
+
+  req.user = null;
+  res.cookie('raia_jwt', 'logout', cookieOptions);
+  return res.status(200).json({ status: 'success', token: null });
 });
