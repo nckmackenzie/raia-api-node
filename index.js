@@ -37,7 +37,20 @@ process.on('uncaughtException', err => {
 });
 
 const server = createServer(app);
-const io = new Server(server, { cors: determineAllowedOrigins() });
+const io = new Server(server, {
+  cors: {
+    origin: determineAllowedOrigins(),
+    credentials: true,
+  },
+  handlePreflightRequest: (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Origin', determineAllowedOrigins());
+    res.writeHead(200);
+    res.end();
+  },
+});
 
 let onlineUsers = [];
 
