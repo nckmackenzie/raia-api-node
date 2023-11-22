@@ -13,6 +13,7 @@ const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/ticket');
 const discussionRoutes = require('./routes/discussion');
 const defineAssociations = require('./associations');
+const { determineAllowedOrigins } = require('./utils/utils');
 
 defineAssociations();
 /* eslint-disable */
@@ -36,7 +37,7 @@ process.on('uncaughtException', err => {
 });
 
 const server = createServer(app);
-const io = new Server(server, { cors: process.env.CLIENT_URL });
+const io = new Server(server, { cors: determineAllowedOrigins() });
 
 let onlineUsers = [];
 

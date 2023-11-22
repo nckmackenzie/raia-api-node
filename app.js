@@ -8,11 +8,12 @@ const cookieParser = require('cookie-parser');
 // const AppError = require('./utils/AppError');
 // const globalErrorHandler = require('./controllers/errors/errorHandler');
 const { protect } = require('./controllers/auth');
+const { determineAllowedOrigins } = require('./utils/utils');
 
 const app = express();
 
 const corsOptions = {
-  origin: process.env.CLIENT_URL, // Replace with the actual URL of your React app
+  origin: determineAllowedOrigins(), // Replace with the actual URL of your React app
   credentials: true, // Enable credentials (cookies)
 };
 app.use(cors(corsOptions));
