@@ -3,6 +3,7 @@ const Discussion = require('./models/barazas/discussion');
 const DiscussionReply = require('./models/barazas/discussionReply');
 const Discussionchat = require('./models/barazas/discussionChat');
 const User = require('./models/user');
+const Feed = require('./models/feed');
 // const Discussionchat = require('./models/barazas/discussionChat');
 
 // Define associations
@@ -17,6 +18,8 @@ function defineAssociations() {
     foreignKey: 'user_id',
     as: 'user',
   });
+
+  // Feed.belongsTo(User, { foreignKey: 'author_id', as: 'user' });
 }
 
 module.exports = defineAssociations;
