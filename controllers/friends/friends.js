@@ -75,3 +75,25 @@ exports.getFollowersAndFollowings = catchAsync(async (req, res) => {
 
   return res.json({ status: 'success', data: { following, followed } });
 });
+
+exports.searchFriends = catchAsync(async (req, res, next) => {
+  const { params } = req.query;
+
+  if (!params) {
+    return next(new AppError('No search criteria provided', 400));
+  }
+
+  const searchQuery = params.trim();
+
+  const users = await User.findAll({
+    where: {
+      [Op.or]: [
+        { username: { [Op.like]: `%${searchQuery}%` } },
+        { full_name: { [Op.like]: `%${searchQuery}%` } },
+      ],
+    },
+    attributes: ['id', 'username', 'full_name', 'email', 'profile_image'],
+  });
+
+  return res.json({ status: 'success', data: users });
+});
