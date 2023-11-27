@@ -36,7 +36,7 @@ exports.getFeeds = catchAsync(async (req, res) => {
   //   },
   // });
 
-  return res.status(201).json({ status: 'success', data: feeds });
+  return res.json({ status: 'success', data: feeds });
 });
 
 exports.postFeed = catchAsync(async (req, res, next) => {
