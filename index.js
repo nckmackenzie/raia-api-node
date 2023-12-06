@@ -14,6 +14,7 @@ const ticketRoutes = require('./routes/ticket');
 const discussionRoutes = require('./routes/discussion');
 const feedRoutes = require('./routes/feed');
 const friendRoutes = require('./routes/friend');
+const conversationRoutes = require('./routes/conversation');
 const defineAssociations = require('./associations');
 const { determineAllowedOrigins } = require('./utils/utils');
 
@@ -89,6 +90,7 @@ app.use('/tickets', ticketRoutes(io));
 app.use('/discussions', discussionRoutes(io));
 app.use('/feeds', feedRoutes);
 app.use('/friends', friendRoutes);
+app.use('/conversations', conversationRoutes);
 // app.use('/tickets', ticketRoutes);
 
 server.listen(PORT, () => {
